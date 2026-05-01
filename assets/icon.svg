@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <!-- Main gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <!-- Top shine -->
+    <linearGradient id="shine" x1="0.5" y1="0" x2="0.5" y2="0.5">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.20)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <!-- Inner shadow -->
+    <linearGradient id="inner" x1="0.5" y1="1" x2="0.5" y2="0.7">
+      <stop offset="0%" stop-color="rgba(0,0,0,0.15)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </linearGradient>
+    <!-- Clock face gradient -->
+    <radialGradient id="clockface" cx="0.5" cy="0.45" r="0.4">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
+    </radialGradient>
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+    <filter id="textshadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.25)"/>
+    </filter>
+  </defs>
+
+  <!-- Background fill -->
+  <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
+
+  <!-- Bottom inner shadow -->
+  <rect width="1024" height="1024" rx="228" fill="url(#inner)"/>
+
+  <!-- Top shine -->
+  <rect width="1024" height="512" rx="228" fill="url(#shine)"/>
+
+  <!-- Decorative: subtle clock circle behind K -->
+  <circle cx="512" cy="480" r="300" fill="url(#clockface)" opacity="0.5"/>
+
+  <!-- Thin tick marks around the circle (clock-like) -->
+  <g stroke="rgba(255,255,255,0.12)" stroke-width="6" stroke-linecap="round">
+    <!-- 12 o'clock --> <line x1="512" y1="200" x2="512" y2="230"/>
+    <!-- 3 --> <line x1="792" y1="480" x2="762" y2="480"/>
+    <!-- 6 --> <line x1="512" y1="760" x2="512" y2="730"/>
+    <!-- 9 --> <line x1="232" y1="480" x2="262" y2="480"/>
+    <!-- 1 --> <line x1="652" y1="238" x2="638" y2="264"/>
+    <!-- 2 --> <line x1="754" y1="340" x2="728" y2="352"/>
+    <!-- 4 --> <line x1="754" y1="620" x2="728" y2="608"/>
+    <!-- 5 --> <line x1="652" y1="722" x2="638" y2="696"/>
+    <!-- 7 --> <line x1="372" y1="722" x2="386" y2="696"/>
+    <!-- 8 --> <line x1="270" y1="620" x2="296" y2="608"/>
+    <!-- 10 --> <line x1="270" y1="340" x2="296" y2="352"/>
+    <!-- 11 --> <line x1="372" y1="238" x2="386" y2="264"/>
+  </g>
+
+  <!-- Letter K with shadow -->
+  <text
+    x="520" y="580"
+    text-anchor="middle"
+    font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+    font-weight="800"
+    font-size="480"
+    fill="white"
+    letter-spacing="-15"
+    filter="url(#textshadow)"
+  >K</text>
+
+  <!-- Subtle border highlight at top -->
+  <rect x="3" y="3" width="1018" height="1018" rx="226" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+</svg>

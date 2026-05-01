@@ -1,0 +1,69 @@
+{
+  "appId": "com.klaschuk.koda",
+  "productName": "Koda",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "dist/**/*",
+    "node_modules/**/*",
+    "!node_modules/**/*.{md,ts,map}",
+    "!node_modules/**/test/**",
+    "!node_modules/**/.bin/**"
+  ],
+  "extraResources": [
+    {
+      "from": "assets/tray",
+      "to": "assets/tray",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "assets/sounds",
+      "to": "assets/sounds",
+      "filter": ["**/*"]
+    }
+  ],
+  "mac": {
+    "icon": "assets/icon.icns",
+    "category": "public.app-category.productivity",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "darkModeSupport": true,
+    "extendInfo": {
+      "LSUIElement": false,
+      "NSUserNotificationAlertStyle": "alert"
+    }
+  },
+  "dmg": {
+    "title": "Koda",
+    "icon": "assets/icon.icns",
+    "contents": [
+      { "x": 130, "y": 220 },
+      { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+    ],
+    "window": {
+      "width": 540,
+      "height": 380
+    }
+  },
+  "win": {
+    "icon": "assets/icon.ico",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Koda"
+  }
+}
