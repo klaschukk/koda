@@ -4,6 +4,8 @@ import fs from 'fs'
 import type { DayData, AppSettings } from '../../shared/types'
 import { DEFAULT_SETTINGS, DEFAULT_CATEGORIES, IDEAL_DAY_TEMPLATE } from '../../shared/types'
 
+// ── Paths ──
+
 function getDataDir(): string {
   const dir = path.join(app.getPath('userData'), 'koda-data')
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
@@ -20,32 +22,108 @@ function getSettingsPath(): string {
   return path.join(getDataDir(), 'settings.json')
 }
 
+function getCorruptedDir(): string {
+  // Holds files that failed to parse — kept around for manual recovery.
+  const dir = path.join(getDataDir(), 'corrupted')
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  return dir
+}
+
+// ── Atomic write (prevents corruption on crash mid-write) ──
+
+function writeFileAtomic(target: string, content: string): void {
+  const tmp = `${target}.tmp.${process.pid}`
+  fs.writeFileSync(tmp, content, 'utf-8')
+  fs.renameSync(tmp, target)
+}
+
+// ── Safe parse helpers ──
+
+interface ParsedDay {
+  ok: true
+  data: DayData
+}
+interface ParseFailure {
+  ok: false
+  error: string
+}
+
+/**
+ * Move a corrupted file out of the way so the app keeps booting.
+ * Adds a timestamp suffix so recovering by hand is possible.
+ */
+function quarantineFile(filePath: string, reason: string): void {
+  try {
+    const name = path.basename(filePath)
+    const ts = new Date().toISOString().replace(/[:.]/g, '-')
+    const target = path.join(getCorruptedDir(), `${name}.${ts}.bak`)
+    fs.renameSync(filePath, target)
+    // eslint-disable-next-line no-console
+    console.warn(`[koda storage] Quarantined corrupted file ${name} (${reason}) → ${target}`)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(`[koda storage] Failed to quarantine ${filePath}:`, err)
+  }
+}
+
+function parseDayFile(filePath: string): ParsedDay | ParseFailure {
+  try {
+    const raw = fs.readFileSync(filePath, 'utf-8')
+    const parsed = JSON.parse(raw) as DayData
+    // Sanity validation: must have date + blocks array
+    if (!parsed || typeof parsed.date !== 'string' || !Array.isArray(parsed.blocks)) {
+      return { ok: false, error: 'invalid shape' }
+    }
+    return { ok: true, data: parsed }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'parse error' }
+  }
+}
+
 // ── Day Data ──
 
 export function readDayData(date: string): DayData {
   const filePath = path.join(getDaysDir(), `${date}.json`)
-  if (fs.existsSync(filePath)) {
-    const raw = fs.readFileSync(filePath, 'utf-8')
-    return JSON.parse(raw)
+  if (!fs.existsSync(filePath)) {
+    return { date, blocks: [], reviewed: false, completionRate: null }
   }
-  return { date, blocks: [], reviewed: false, completionRate: null }
+  const result = parseDayFile(filePath)
+  if (!result.ok) {
+    quarantineFile(filePath, result.error)
+    return { date, blocks: [], reviewed: false, completionRate: null }
+  }
+  return result.data
 }
 
 export function writeDayData(data: DayData): void {
-  const filePath = path.join(getDaysDir(), `${data.date}.json`)
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8')
+  if (!data || !data.date) return
+  try {
+    const filePath = path.join(getDaysDir(), `${data.date}.json`)
+    writeFileAtomic(filePath, JSON.stringify(data, null, 2))
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[koda storage] writeDayData failed:', err)
+  }
 }
 
 // ── Settings ──
 
 export function readSettings(): AppSettings {
   const filePath = getSettingsPath()
-  let settings: AppSettings
+  let settings: AppSettings = { ...DEFAULT_SETTINGS }
+
   if (fs.existsSync(filePath)) {
-    const raw = fs.readFileSync(filePath, 'utf-8')
-    settings = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }
-  } else {
-    settings = { ...DEFAULT_SETTINGS }
+    try {
+      const raw = fs.readFileSync(filePath, 'utf-8')
+      const parsed = JSON.parse(raw)
+      if (parsed && typeof parsed === 'object') {
+        settings = { ...DEFAULT_SETTINGS, ...parsed }
+      }
+    } catch (err) {
+      // settings.json corrupted — quarantine it and fall back to defaults so
+      // the app still launches. User can restore from backup.
+      quarantineFile(filePath, err instanceof Error ? err.message : 'parse error')
+    }
   }
 
   // ── Migration: ensure Ideal Day template exists ──
@@ -55,23 +133,61 @@ export function readSettings(): AppSettings {
   }
 
   // ── Migration: ensure all categories required by the Ideal Day template exist ──
-  // Adds any missing default category (e.g. morning, music, it, youtube, home,
-  // free, sleep) without touching the user's customized categories.
+  // Adds any missing default category without touching the user's customized
+  // ones. Safe to run on every launch.
   const existingIds = new Set(settings.categories?.map(c => c.id) ?? [])
   const missing = DEFAULT_CATEGORIES.filter(c => !existingIds.has(c.id))
   if (missing.length > 0) {
     settings.categories = [...(settings.categories ?? []), ...missing]
   }
 
+  // ── Defensive: notifications object may be partial after migration ──
+  if (!settings.notifications) {
+    settings.notifications = { ...DEFAULT_SETTINGS.notifications }
+  } else {
+    settings.notifications = { ...DEFAULT_SETTINGS.notifications, ...settings.notifications }
+  }
+  if (!settings.pomodoro) {
+    settings.pomodoro = { ...DEFAULT_SETTINGS.pomodoro }
+  }
+
   return settings
 }
 
 export function writeSettings(settings: AppSettings): void {
-  const filePath = getSettingsPath()
-  fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), 'utf-8')
+  try {
+    writeFileAtomic(getSettingsPath(), JSON.stringify(settings, null, 2))
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[koda storage] writeSettings failed:', err)
+  }
 }
 
-// ── Week / Month queries ──
+// ── Week / Month / Range queries (resilient: skip bad files instead of crashing) ──
+
+function readDirSafe(dir: string): string[] {
+  try {
+    if (!fs.existsSync(dir)) return []
+    return fs.readdirSync(dir).filter(f => f.endsWith('.json'))
+  } catch {
+    return []
+  }
+}
+
+function readDaysFiltered(predicate: (file: string) => boolean): DayData[] {
+  const dir = getDaysDir()
+  const files = readDirSafe(dir).filter(predicate)
+  const days: DayData[] = []
+  for (const f of files) {
+    const result = parseDayFile(path.join(dir, f))
+    if (result.ok) {
+      days.push(result.data)
+    } else {
+      quarantineFile(path.join(dir, f), result.error)
+    }
+  }
+  return days.sort((a, b) => a.date.localeCompare(b.date))
+}
 
 export function readWeekData(startDate: string): DayData[] {
   const days: DayData[] = []
@@ -87,38 +203,21 @@ export function readWeekData(startDate: string): DayData[] {
 
 export function readMonthData(month: string): DayData[] {
   // month = "YYYY-MM"
-  const dir = getDaysDir()
-  if (!fs.existsSync(dir)) return []
-  const files = fs.readdirSync(dir).filter(f => f.startsWith(month) && f.endsWith('.json'))
-  return files.map(f => {
-    const raw = fs.readFileSync(path.join(dir, f), 'utf-8')
-    return JSON.parse(raw) as DayData
-  }).sort((a, b) => a.date.localeCompare(b.date))
+  return readDaysFiltered(f => f.startsWith(month))
 }
 
 export function readRangeData(startDate: string, endDate: string): DayData[] {
-  const dir = getDaysDir()
-  if (!fs.existsSync(dir)) return []
-  const files = fs.readdirSync(dir).filter(f => {
-    if (!f.endsWith('.json')) return false
+  return readDaysFiltered(f => {
     const date = f.replace('.json', '')
     return date >= startDate && date <= endDate
   })
-  return files.map(f => {
-    const raw = fs.readFileSync(path.join(dir, f), 'utf-8')
-    return JSON.parse(raw) as DayData
-  }).sort((a, b) => a.date.localeCompare(b.date))
 }
 
 export function readAllDays(): DayData[] {
-  const dir = getDaysDir()
-  if (!fs.existsSync(dir)) return []
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'))
-  return files.map(f => {
-    const raw = fs.readFileSync(path.join(dir, f), 'utf-8')
-    return JSON.parse(raw) as DayData
-  }).sort((a, b) => a.date.localeCompare(b.date))
+  return readDaysFiltered(() => true)
 }
+
+// ── Public path helpers ──
 
 export function getDataPath(): string {
   return getDataDir()
@@ -168,24 +267,12 @@ export interface BackupData {
 }
 
 export function exportAllData(): BackupData {
-  const dir = getDaysDir()
-  const days: DayData[] = []
-  if (fs.existsSync(dir)) {
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'))
-    for (const file of files) {
-      try {
-        const raw = fs.readFileSync(path.join(dir, file), 'utf-8')
-        days.push(JSON.parse(raw))
-      } catch {
-        // skip corrupted file
-      }
-    }
-  }
+  const days = readAllDays()
   return {
     version: 1,
     exportedAt: new Date().toISOString(),
     settings: readSettings(),
-    days: days.sort((a, b) => a.date.localeCompare(b.date)),
+    days,
   }
 }
 
@@ -212,20 +299,30 @@ export function importBackup(
   let overwritten = 0
 
   for (const day of backup.days ?? []) {
-    if (!day.date) continue
+    if (!day || typeof day.date !== 'string') continue
     const filePath = path.join(dir, `${day.date}.json`)
     const exists = fs.existsSync(filePath)
     if (exists && strategy === 'merge') continue
-    fs.writeFileSync(filePath, JSON.stringify(day, null, 2), 'utf-8')
-    if (exists) overwritten++
-    else imported++
+    try {
+      writeFileAtomic(filePath, JSON.stringify(day, null, 2))
+      if (exists) overwritten++
+      else imported++
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`[koda storage] Failed to import day ${day.date}:`, err)
+    }
   }
 
   let settingsImported = false
   if (backup.settings) {
-    const merged = { ...readSettings(), ...backup.settings }
-    writeSettings(merged)
-    settingsImported = true
+    try {
+      const merged = { ...readSettings(), ...backup.settings }
+      writeSettings(merged)
+      settingsImported = true
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[koda storage] Failed to import settings:', err)
+    }
   }
 
   return { daysImported: imported, daysOverwritten: overwritten, settingsImported }

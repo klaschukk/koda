@@ -1,89 +1,71 @@
 # Koda
 
-Personal day planner with time-block calendar. Built offline-first as a desktop app for macOS.
+Personal day planner with time-block calendar. Desktop app for macOS.
 
-> Plan your day with visual time blocks. Stay focused with countdown timers, native notifications, and a tray-icon mini view. Build streaks with daily reviews.
+> Plan your day with visual time blocks. Stay focused with countdown timers, native notifications and a tray-icon mini view. Build streaks with daily reviews.
 
-![Koda](assets/icon.svg)
+![Koda icon](assets/icon.svg)
 
-## Features
+---
 
-- **Visual timeline** (07:00–23:00 by default) with drag-to-create, drag-to-move, resize blocks
-- **Parallel blocks** — overlapping tasks render side-by-side as columns
-- **Categories** with custom icons and colors (10 defaults: Morning, English, Music, IT, Sport, YouTube, Home, Free, Rest, Sleep)
-- **Templates** — save reusable day structures (Ideal Day shipped pre-loaded)
-- **Pomodoro mode** — work/break cycles synced with current block
-- **Block timer** — track real time spent vs planned
-- **Smart notifications** — block start, ending soon (5 min), overtime, idle detection
-- **Native macOS tray** — live label with current block + remaining time, popup with day overview
-- **Day Review** — animated end-of-day flow with score card and streak tracking
-- **Search** (⌘F) across all blocks
-- **Undo / Redo** (⌘Z / ⌘⇧Z)
-- **Multi-select** — ⌘+click, shift+click for ranges
-- **Stats** — heatmap, weekly trend, energy map, category breakdown
-- **Daily Goal** progress tracking
-- **Day Notes** — freeform journal per day
-- **Backup / Restore** — JSON export with merge or overwrite
-- **Auto-launch** at login (macOS)
-- **Theme** — Dark (Midnight Neon) / Light, plus tray popup theme sync
-- **Keyboard shortcuts** — comprehensive coverage with cheat sheet (`?`)
-- **Window state persistence** — remembers size, position, maximized state
-- **ErrorBoundary** — graceful crash recovery
+## 📥 Install (for friends)
 
-## Tech
+The latest pre-built `.dmg` is in the [Releases](https://github.com/klaschukk/koda/releases) tab.
 
-- **Electron 29** (frameless macOS window, hiddenInset titlebar)
-- **React 19** + **TypeScript 5** + **Vite 5**
-- **Tailwind CSS 3** with CSS-variable-driven theming
-- **Lucide React** icons
-- **Inter** + **JetBrains Mono** (bundled, offline)
-- Local-only storage as JSON files in `~/Library/Application Support/koda/koda-data/`
+1. Download the file matching your Mac:
+   - **Apple Silicon** (M1/M2/M3/M4) → `Koda-0.1.0-arm64.dmg`
+   - **Intel Mac** → `Koda-0.1.0.dmg`
+2. Open the `.dmg` and drag **Koda** into Applications
+3. First time you launch it, macOS will warn "from an unidentified developer". Right-click the Koda icon → **Open** → confirm. Only needed once.
+4. Done. The app lives in the menubar (top-right of the screen) — click to see your current block.
 
-## Architecture
+---
 
-```
-src/
-├── main/                    # Electron main process
-│   ├── index.ts             # Entry, window creation, global shortcuts
-│   ├── menu.ts              # Native macOS application menu
-│   ├── tray.ts              # Menubar tray icon + popup window
-│   ├── notifications.ts     # Rich native notifications with actions
-│   ├── preload.ts           # contextBridge IPC API
-│   ├── ipc/handlers.ts      # IPC method implementations
-│   └── services/
-│       ├── storage.ts       # JSON file CRUD, backup/restore, migrations
-│       └── windowState.ts   # Window position/size persistence
-├── renderer/                # React UI
-│   ├── App.tsx              # Root, page routing, modals, hotkeys
-│   ├── pages/               # Dashboard, Planner, Calendar, Stats, Settings
-│   ├── components/          # Timeline, Sidebar, FocusPanel, Toast, etc.
-│   ├── hooks/               # useAppState, useUndo, useTimer, useNotifications
-│   ├── tray.tsx             # Separate entry for tray popup window
-│   ├── styles/globals.css   # Tailwind + CSS variables (Midnight Neon palette)
-│   └── fonts/               # Bundled Inter + JetBrains Mono
-└── shared/
-    ├── types.ts             # TimeBlock, DayData, AppSettings, KodaAPI, IDEAL_DAY_TEMPLATE
-    └── utils.ts             # Time formatting, layout algorithm for parallel blocks
-```
+## ✨ Features
 
-## Develop
+**Planning**
+- Visual timeline (07:00–23:00 by default, configurable)
+- Drag-to-create, drag-to-move, resize blocks
+- Parallel blocks — overlapping tasks render side-by-side as columns
+- 10 default categories with custom icons + colors, full CRUD
+- Templates (with **Ideal Day** pre-loaded — load any day in one click)
 
-```bash
-npm install
-npm run dev      # Vite + Electron with HMR (port 5174)
-```
+**Focus**
+- Pomodoro mode synced with current block
+- Block timer — track real time spent vs planned
+- Smart notifications — block start, ending soon (5 min), overtime, idle
+- Custom sound packs (bell / chime / click)
 
-## Build
+**Review & Insights**
+- Day Review with animated score card and streak tracking
+- Daily Goal progress (configurable hours)
+- Stats: heatmap, weekly trend, energy map, category breakdown
+- Day notes — freeform daily journal
 
-```bash
-npm run build       # TS + Vite build, output to dist/
-npm run package:mac # Builds .dmg for x64 + arm64 → release/
-npm run package:win # Builds .exe (NSIS installer) for x64 → release/
-```
+**Power features**
+- Search across all blocks (⌘F)
+- Undo / Redo (⌘Z / ⌘⇧Z)
+- Multi-select (⌘+click, shift+click)
+- Backup / Restore (JSON export with merge or overwrite)
 
-> macOS DMG is **not code-signed** by default. To distribute, set up an Apple Developer account ($99/year) and configure `electron-builder` signing. For personal use, right-click the app → Open → Confirm to bypass Gatekeeper warnings.
+**macOS native**
+- Tray icon with live label (shows current block + remaining time)
+- Tray popup window with day overview
+- Native menu (File / Edit / View / Window / Help)
+- Auto-launch at login
+- Dock badge with remaining blocks count
+- Light / Dark theme synced with system
 
-## Keyboard Shortcuts
+**Reliability**
+- ErrorBoundary with crash recovery
+- Atomic file writes (no data loss on power cut)
+- Auto-quarantine of corrupted files (app keeps booting)
+- Window position / size persistence
+- Offline-first — your data never leaves your machine
+
+---
+
+## ⌨️ Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
@@ -98,8 +80,57 @@ npm run package:win # Builds .exe (NSIS installer) for x64 → release/
 | D | Mark current block done |
 | ? | Show all shortcuts |
 | Esc | Close modal |
-| ⌘⌥K | Global Quick Add (works system-wide) |
+| ⌘⌥K | Global Quick Add (works from anywhere) |
 
-## License
+---
 
-MIT
+## 💾 Where is my data?
+
+Koda stores everything locally as JSON files at:
+```
+~/Library/Application Support/koda/koda-data/
+├── settings.json          ← preferences, categories, templates, streak
+├── days/
+│   ├── 2026-04-01.json   ← one file per day
+│   ├── 2026-04-02.json
+│   └── …
+├── window-state.json
+└── corrupted/             ← auto-quarantined bad files (safe to delete)
+```
+
+**Backup**: Settings → Data → Export Data. Save the JSON somewhere safe (iCloud Drive folder works fine).
+
+**Sync between Macs**: There's no built-in cloud sync. Easiest workaround — symlink the data folder into iCloud Drive. Both Macs will see the same data.
+
+**If something breaks**: Open the data folder (Settings → Data → Open) and look for `corrupted/`. Files there couldn't be parsed but kept around for manual recovery.
+
+---
+
+## 🛠️ Develop
+
+```bash
+git clone https://github.com/klaschukk/koda.git
+cd koda
+npm install
+npm run dev          # Vite + Electron with hot reload (port 5174)
+```
+
+### Build a fresh DMG
+
+```bash
+npm run package:mac  # builds Koda-0.1.0.dmg + Koda-0.1.0-arm64.dmg in release/
+```
+
+> macOS DMG is **not code-signed**. To distribute without the "unidentified developer" warning, set up an Apple Developer account ($99/year) and configure signing in `electron-builder.json`. For personal use it's fine — right-click → Open → confirm.
+
+### Tech stack
+
+Electron 29 · React 19 · TypeScript 5 · Vite 5 · Tailwind 3 · Lucide React · Inter + JetBrains Mono.
+
+See [CLAUDE.md](./CLAUDE.md) for architecture details (intended for AI assistants but humans can read too).
+
+---
+
+## 📝 License
+
+MIT — see [LICENSE](./LICENSE).
