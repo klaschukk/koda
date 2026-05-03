@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Play, Pause, RotateCcw, Coffee, Brain, SkipForward } from 'lucide-react'
 import type { AppSettings, TimeBlock } from '../../shared/types'
 import { useCountdown } from '../hooks/useTimer'

@@ -1,4 +1,3 @@
-import React from 'react'
 import Sidebar from '../components/Sidebar'
 import Timeline from '../components/Timeline'
 import FocusPanel from '../components/FocusPanel'

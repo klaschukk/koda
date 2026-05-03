@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Plus, Trash2, Layers, Pencil, X, Clock } from 'lucide-react'
 import type { AppSettings, Template } from '../../shared/types'
 import { v4 as uuid } from 'uuid'
@@ -121,7 +121,6 @@ export default function TemplatesEditor({ settings, onChange }: Props) {
 
       {showNew && (
         <NewTemplateForm
-          settings={settings}
           onCreate={addTemplate}
           onCancel={() => setShowNew(false)}
         />
@@ -141,11 +140,9 @@ export default function TemplatesEditor({ settings, onChange }: Props) {
 
 // ── New template form (inline) ──
 function NewTemplateForm({
-  settings,
   onCreate,
   onCancel,
 }: {
-  settings: AppSettings
   onCreate: (t: Template) => void
   onCancel: () => void
 }) {

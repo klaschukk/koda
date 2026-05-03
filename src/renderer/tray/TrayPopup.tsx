@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Coffee, Plus, ExternalLink, ClipboardCheck, Flame, ArrowRight } from 'lucide-react'
 import type { TrayState } from '../../shared/types'
 import { formatCountdown, formatDuration } from '../../shared/utils'

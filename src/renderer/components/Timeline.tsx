@@ -224,9 +224,9 @@ export default function Timeline({
                 }
               : null
             if (after) {
-              // Use onUpdateBlock to re-apply final time and create undo entry
-              const final = dayData.blocks.find(x => x.id === b.id)
-              // We bypass: we already applied silent bulk; final state is in store. We push by calling onUpdateBlock with no changes? not ideal.
+              // We already applied silent bulk; final state is in store.
+              // No additional onUpdateBlock call needed here — undo entry is
+              // handled at the bulk-update level via onUpdateBlocksBulk.
             }
           })
           // Simpler: capture final state and push single-block updates via onUpdateBlock for undo.

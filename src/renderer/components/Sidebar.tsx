@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { ChevronLeft, ChevronRight, Star, Clock, Sparkles } from 'lucide-react'
 import type { AppSettings, DayData } from '../../shared/types'
 import { timeToMinutes, formatDuration } from '../../shared/utils'

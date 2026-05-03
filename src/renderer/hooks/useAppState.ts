@@ -190,7 +190,7 @@ export function useAppState() {
   const addBlocks = useCallback((blocks: Array<Omit<TimeBlock, 'id' | 'completed'>>) => {
     if (blocks.length === 0) return []
     const newBlocks: TimeBlock[] = blocks
-      .map(b => {
+      .map((b): TimeBlock | null => {
         const start = clampTime(b.startTime)
         const end = clampTime(b.endTime)
         if (timeToMinutes(end) - timeToMinutes(start) < 15) return null

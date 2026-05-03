@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Check, AlertTriangle, XCircle, Flame, Trophy, X } from 'lucide-react'
 import type { AppSettings, DayData, TimeBlock } from '../../shared/types'
 import { timeToMinutes, formatDuration } from '../../shared/utils'

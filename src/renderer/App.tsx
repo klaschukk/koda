@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useAppState } from './hooks/useAppState'
 import { useNotifications } from './hooks/useNotifications'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
@@ -16,7 +16,6 @@ import SettingsPage from './pages/SettingsPage'
 import QuickAdd from './components/QuickAdd'
 import DayReview from './components/DayReview'
 import SearchBar from './components/SearchBar'
-import { v4 as uuid } from 'uuid'
 
 export default function App() {
   const state = useAppState()
@@ -161,7 +160,6 @@ export default function App() {
   }, [state.goToDate])
 
   // Keyboard shortcuts
-  const anyModalOpen = state.showQuickAdd || state.showReview || showShortcuts || showSearch
   useKeyboardShortcuts({
     onQuickAdd: () => state.setShowQuickAdd(true),
     onShowShortcuts: () => setShowShortcuts(true),

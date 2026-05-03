@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { TrendingUp, Calendar, Target, Flame, Download, Trophy, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import type { AppSettings, DayData } from '../../shared/types'
 import { timeToMinutes, formatDuration } from '../../shared/utils'

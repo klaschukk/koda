@@ -1,7 +1,7 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { Clock, Layers, Flame, Target, Plus, ArrowRight, Coffee, Sparkles } from 'lucide-react'
 import type { AppSettings, DayData, TimeBlock } from '../../shared/types'
-import { timeToMinutes, formatDuration, formatCountdown, blockDuration, nowTimeStr } from '../../shared/utils'
+import { timeToMinutes, formatDuration, formatCountdown } from '../../shared/utils'
 import DayNote from '../components/DayNote'
 
 interface Props {
@@ -24,7 +24,7 @@ function getGreeting(hour: number): string {
 }
 
 export default function Dashboard({
-  settings, dayData, now, currentBlock, nextBlock,
+  settings, dayData, now, currentBlock, nextBlock: _nextBlock,
   onNavigateToPlanner, onOpenQuickAdd, onOpenReview, onLoadIdealDay, onUpdateDayNote,
 }: Props) {
   const [weekData, setWeekData] = useState<DayData[]>([])

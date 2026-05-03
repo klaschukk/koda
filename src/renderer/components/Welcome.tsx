@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { ArrowRight, CalendarClock, Flame, Zap, Layout } from 'lucide-react'
 import type { AppSettings } from '../../shared/types'
 
@@ -36,7 +36,6 @@ const STEPS = [
 
 export default function Welcome({ settings, onComplete }: Props) {
   const [step, setStep] = useState(0)
-  const [name, setName] = useState('')
   const current = STEPS[step]
   const isLast = step === STEPS.length - 1
 

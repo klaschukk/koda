@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { X, Clock, Plus, FileText, ChevronDown, Layers } from 'lucide-react'
 import type { AppSettings, TimeBlock, Template } from '../../shared/types'
 import { timeToMinutes, formatDuration } from '../../shared/utils'

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Coffee, ArrowRight, Command, Play, Square, Timer } from 'lucide-react'
 import type { AppSettings, TimeBlock } from '../../shared/types'
 import { timeToMinutes, formatCountdown, formatDuration } from '../../shared/utils'

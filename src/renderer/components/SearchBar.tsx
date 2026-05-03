@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Search, X, Filter, Calendar, Check, Circle } from 'lucide-react'
 import type { AppSettings, DayData, TimeBlock } from '../../shared/types'
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import {
-  Moon, Sun, Plus, Trash2, Check, Copy, Bell, Volume2, VolumeX,
+  Moon, Sun, Plus, Trash2, Check, Copy, Bell, Volume2,
   Palette, Clock, Target, LayoutDashboard, Keyboard, Zap, Flame, Layers, Timer,
   RotateCcw, HardDrive,
 } from 'lucide-react'
-import type { AppSettings, Category, Template, SoundPack } from '../../shared/types'
+import type { AppSettings, Category, SoundPack } from '../../shared/types'
 import { DEFAULT_SETTINGS } from '../../shared/types'
 import { v4 as uuid } from 'uuid'
 import TemplatesEditor from '../components/TemplatesEditor'
