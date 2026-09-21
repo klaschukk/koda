@@ -1,10 +1,6 @@
-# Koda
-
-Personal day planner with time-block calendar. Desktop app for macOS.
+<a href="https://github.com/klaschukk/koda/releases"><img src="docs/banner.svg" alt="Koda — plan your day in visual time blocks" width="100%"></a>
 
 > Plan your day with visual time blocks. Stay focused with countdown timers, native notifications and a tray-icon mini view. Build streaks with daily reviews.
-
-![Koda icon](assets/icon.svg)
 
 ---
 
