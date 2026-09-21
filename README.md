@@ -127,7 +127,6 @@ npm run package:mac  # builds Koda-0.1.0.dmg + Koda-0.1.0-arm64.dmg in release/
 
 Electron 29 · React 19 · TypeScript 5 · Vite 5 · Tailwind 3 · Lucide React · Inter + JetBrains Mono.
 
-See [CLAUDE.md](./CLAUDE.md) for architecture details (intended for AI assistants but humans can read too).
 
 ---
 
